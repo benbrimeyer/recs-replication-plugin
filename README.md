@@ -46,6 +46,7 @@ Recs.Core.new({
 Any calls to a Recs method in this function will replicate to all other players.
 The following calls are supported with this method:
 - Core:addComponent
+- Core:setStateComponent
 - Core:removeComponent
 - Core:addSingleton
 
@@ -55,6 +56,12 @@ The following calls are supported with this method:
 ```lua
 Replication.replicate(function()
 	core:addComponent(entity, "Foo")
+end)
+
+Replication.replicate(function()
+	core:setStateComponent(entity, "Foo", {
+		x = 100,
+	})
 end)
 
 Replication.replicate(function()
