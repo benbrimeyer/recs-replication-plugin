@@ -2,3 +2,4 @@
 name = "vocksel/recs-replication-plugin"
 version = "0.1.0"
 author = "vocksel"
+content_root = "src"
