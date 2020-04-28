@@ -108,7 +108,8 @@ return function()
 									type = ActionType.SetStateComponent,
 									payload = {
 										entity = "entity",
-										component = "component",
+										componentIdentifier = "componentIdentifier",
+										newState = "newState",
 									},
 								}
 								describe("WHEN OnClientEvent is fired", function()
@@ -116,7 +117,7 @@ return function()
 										fireOnClientEvent(action)
 
 										expect(setStateComponentSpy.getNumberOfCalls()).to.equal(1)
-										setStateComponentSpy.expectToBeCalledWith(core, "entity", "component")
+										setStateComponentSpy.expectToBeCalledWith(core, "entity", "componentIdentifier", "newState")
 									end)
 								end)
 							end)

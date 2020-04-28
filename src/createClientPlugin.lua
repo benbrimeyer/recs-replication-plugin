@@ -11,7 +11,7 @@ return function(remoteEvent)
 				if action.type == ActionType.AddComponent then
 					core:addComponent(payload.entity, payload.componentIdentifier, payload.props)
 				elseif action.type == ActionType.SetStateComponent then
-					core:setStateComponent(payload.entity, payload.component)
+					core:setStateComponent(payload.entity, payload.componentIdentifier, payload.newState)
 				elseif action.type == ActionType.RemoveComponent then
 					core:removeComponent(payload.entity, payload.componentIdentifier)
 				elseif action.type == ActionType.AddSingleton then

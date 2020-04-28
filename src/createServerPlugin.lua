@@ -21,11 +21,12 @@ return function(remoteEvent, history)
 			end
 		end
 
-		function plugin:componentStateSet(core, entity, component)
+		function plugin:componentStateSet(core, entity, componentIdentifier, newState)
 			if replicate.shouldReplicate then
 				local action = createAction(ActionType.SetStateComponent, {
 					entity = entity,
-					component = component
+					componentIdentifier = componentIdentifier,
+					newState = newState,
 				})
 
 				table.insert(history, action)
