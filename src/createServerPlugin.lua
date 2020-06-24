@@ -6,9 +6,11 @@ return function(remoteEvent, history)
 	history = history or {}
 
 	return function()
-		local plugin = {}
+		local recsPlugin = {}
 
-		function plugin:componentAdded(core, entity, component, props)
+		local batch = {}
+
+		function recsPlugin:componentAdded(core, entity, component, props)
 			if replicate.shouldReplicate then
 				local action = createAction(ActionType.AddComponent, {
 					entity = entity,
@@ -17,11 +19,11 @@ return function(remoteEvent, history)
 				})
 
 				table.insert(history, action)
-				remoteEvent:FireAllClients(action)
+				table.insert(batch, action)
 			end
 		end
 
-		function plugin:componentStateSet(core, entity, componentIdentifier, newState)
+		function recsPlugin:componentStateSet(core, entity, componentIdentifier, newState)
 			if replicate.shouldReplicate then
 				local action = createAction(ActionType.SetStateComponent, {
 					entity = entity,
@@ -30,11 +32,11 @@ return function(remoteEvent, history)
 				})
 
 				table.insert(history, action)
-				remoteEvent:FireAllClients(action)
+				table.insert(batch, action)
 			end
 		end
 
-		function plugin:componentRemoving(core, entity, component)
+		function recsPlugin:componentRemoving(core, entity, component)
 			if replicate.shouldReplicate then
 				local action = createAction(ActionType.RemoveComponent, {
 					entity = entity,
@@ -42,21 +44,28 @@ return function(remoteEvent, history)
 				})
 
 				table.insert(history, action)
-				remoteEvent:FireAllClients(action)
+				table.insert(batch, action)
 			end
 		end
 
-		function plugin:singletonAdded(core, component)
+		function recsPlugin:singletonAdded(core, component)
 			if replicate.shouldReplicate then
 				local action = createAction(ActionType.AddSingleton, {
 					componentIdentifier = component.className
 				})
 
 				table.insert(history, action)
-				remoteEvent:FireAllClients(action)
+				table.insert(batch, action)
 			end
 		end
 
-		return plugin
+		function recsPlugin:beforeSystemStart(core)
+			core.flush = function()
+				remoteEvent:FireAllClients(batch)
+				batch = {}
+			end
+		end
+
+		return recsPlugin
 	end
 end

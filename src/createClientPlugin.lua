@@ -2,9 +2,9 @@ local ActionType = require(script.Parent.ActionType)
 
 return function(remoteEvent)
 	return function()
-		local plugin = {}
+		local recsPlugin = {}
 
-		function plugin:beforeSystemStart(core)
+		function recsPlugin:beforeSystemStart(core)
 			local function handleCoreAction(action)
 				local payload = action.payload
 
@@ -19,17 +19,19 @@ return function(remoteEvent)
 				end
 			end
 
-			remoteEvent.OnClientEvent:Connect(function(action)
-				if action.type == ActionType.Setup then
-					for _, childAction in ipairs(action.payload.history) do
-						handleCoreAction(childAction)
+			remoteEvent.OnClientEvent:Connect(function(actions)
+				for _, action in pairs(actions) do
+					if action.type == ActionType.Setup then
+						for _, childAction in ipairs(action.payload.history) do
+							handleCoreAction(childAction)
+						end
+					else
+						handleCoreAction(action)
 					end
-				else
-					handleCoreAction(action)
 				end
 			end)
 		end
 
-		return plugin
+		return recsPlugin
 	end
 end
