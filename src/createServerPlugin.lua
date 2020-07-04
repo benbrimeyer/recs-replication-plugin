@@ -5,10 +5,28 @@ local createAction = require(script.Parent.createAction)
 return function(remoteEvent, history)
 	history = history or {}
 
-	return function()
-		local recsPlugin = {}
+	return function(config)
+		config = config or {
+			batchActions = false,
+		}
 
+		local recsPlugin = {}
 		local batch = {}
+
+		local function performFlush()
+			remoteEvent:FireAllClients(batch)
+			batch = {}
+		end
+
+		local function addAction(action)
+			table.insert(history, action)
+			table.insert(batch, action)
+
+			if config.batchActions == false then
+				-- automatically flush if this config is OFF
+				performFlush()
+			end
+		end
 
 		function recsPlugin:componentAdded(core, entity, component, props)
 			if replicate.shouldReplicate then
@@ -18,8 +36,7 @@ return function(remoteEvent, history)
 					props = props
 				})
 
-				table.insert(history, action)
-				table.insert(batch, action)
+				addAction(action)
 			end
 		end
 
@@ -31,8 +48,7 @@ return function(remoteEvent, history)
 					newState = newState,
 				})
 
-				table.insert(history, action)
-				table.insert(batch, action)
+				addAction(action)
 			end
 		end
 
@@ -43,8 +59,7 @@ return function(remoteEvent, history)
 					componentIdentifier = component.className
 				})
 
-				table.insert(history, action)
-				table.insert(batch, action)
+				addAction(action)
 			end
 		end
 
@@ -54,16 +69,12 @@ return function(remoteEvent, history)
 					componentIdentifier = component.className
 				})
 
-				table.insert(history, action)
-				table.insert(batch, action)
+				addAction(action)
 			end
 		end
 
 		function recsPlugin:beforeSystemStart(core)
-			core.flush = function()
-				remoteEvent:FireAllClients(batch)
-				batch = {}
-			end
+			core.flush = performFlush
 		end
 
 		return recsPlugin
